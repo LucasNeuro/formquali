@@ -408,17 +408,20 @@ const App: React.FC = () => {
       // Transformar dados para o formato do webhook
       const webhookData = transformDataForWebhook(formData, calculatedScoreDetails);
       
-      // Enviar para o webhook do Make
-      const webhookResponse = await fetch(import.meta.env.VITE_WEBHOOK_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(webhookData)
-      });
-
-      if (!webhookResponse.ok) {
-        throw new Error('Erro ao enviar para o webhook');
+      // Tenta enviar para o webhook via backend, mas não interrompe o salvamento se falhar
+      try {
+        const webhookResponse = await fetch('http://localhost:3001/api/send-webhook', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ data: webhookData })
+        });
+        if (!webhookResponse.ok) {
+          console.warn('Falha ao enviar para o webhook, mas continuando com o salvamento no banco.');
+        }
+      } catch (err) {
+        console.warn('Erro ao enviar para o webhook:', err);
       }
 
       // Transformar checklist e ncg para usar o nome da pergunta como chave

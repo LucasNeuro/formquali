@@ -92,6 +92,19 @@ app.post('/api/ticket', async (req, res) => {
   }
 });
 
+// Endpoint para enviar dados ao webhook do Make
+app.post('/api/send-webhook', async (req, res) => {
+  const webhookUrl = process.env.VITE_WEBHOOK_URL;
+  try {
+    const response = await axios.post(webhookUrl, req.body.data, {
+      headers: { 'Content-Type': 'application/json' }
+    });
+    res.json({ success: true, data: response.data });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Zendesk proxy rodando em http://localhost:${PORT}`);
