@@ -1,0 +1,5 @@
+{
+  "name": "Checklist Qualidade Suporte B2B",
+  "description": "Uma aplicação web para monitoria de qualidade de analistas de suporte B2B, com cálculo de nota e envio para webhook.",
+  "requestFramePermissions": []
+}
