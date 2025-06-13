@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 dotenv.config();
 
 const app = express();
@@ -20,6 +22,13 @@ const zendeskApi = axios.create({
   },
 });
 
+// --- SERVE FRONTEND BUILD (VITE) ---
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const viteDistPath = path.join(__dirname, 'dist');
+app.use(express.static(viteDistPath));
+
+// Todas as rotas de API devem vir antes do fallback
 app.post('/api/ticket', async (req, res) => {
   const { ticketNumber } = req.body;
   if (!ticketNumber) {
@@ -92,7 +101,6 @@ app.post('/api/ticket', async (req, res) => {
   }
 });
 
-// Endpoint para enviar dados ao webhook do Make
 app.post('/api/send-webhook', async (req, res) => {
   const webhookUrl = process.env.VITE_WEBHOOK_URL;
   try {
@@ -103,6 +111,11 @@ app.post('/api/send-webhook', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+// Fallback para index.html do Vite para rotas que não sejam API (deve ser o último)
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(viteDistPath, 'index.html'));
 });
 
 const PORT = 3001;

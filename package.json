@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "backend": "node zendesk-proxy.js",
-    "start:all": "concurrently \"npm run backend\" \"npm run dev\""
+    "start:all": "concurrently \"npm run backend\" \"npm run dev\"",
+    "build": "vite build",
+    "start": "npm run build && node zendesk-proxy.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.50.0",

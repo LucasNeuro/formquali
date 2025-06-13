@@ -139,7 +139,7 @@ const App: React.FC = () => {
     try {
       setIsFetchingTicketInfo(true);
       setZendeskFetchError(null);
-      const resp = await fetch('http://localhost:3001/api/ticket', {
+      const resp = await fetch('/api/ticket', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ticketNumber: ticketId })
@@ -407,16 +407,16 @@ const App: React.FC = () => {
     try {
       // Transformar dados para o formato do webhook
       const webhookData = transformDataForWebhook(formData, calculatedScoreDetails);
-      
+
       // Tenta enviar para o webhook via backend, mas não interrompe o salvamento se falhar
-      try {
-        const webhookResponse = await fetch('http://localhost:3001/api/send-webhook', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+    try {
+        const webhookResponse = await fetch('/api/send-webhook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
           body: JSON.stringify({ data: webhookData })
-        });
+      });
         if (!webhookResponse.ok) {
           console.warn('Falha ao enviar para o webhook, mas continuando com o salvamento no banco.');
         }
