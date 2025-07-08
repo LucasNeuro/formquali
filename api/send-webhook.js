@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   const webhookUrl = process.env.VITE_WEBHOOK_URL;
   try {
-    const response = await axios.post(webhookUrl, req.body.data, {
+    const response = await axios.post(webhookUrl, req.body, {
       headers: { 'Content-Type': 'application/json' }
     });
     res.json({ success: true, data: response.data });
