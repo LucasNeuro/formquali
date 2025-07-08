@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Método não permitido' });
   }
 
-  const webhookUrl = process.env.VITE_WEBHOOK_URL;
+  const webhookUrl = process.env.MAKE_WEBHOOK_URL;
   try {
     const response = await axios.post(webhookUrl, req.body, {
       headers: { 'Content-Type': 'application/json' }
