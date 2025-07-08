@@ -118,7 +118,7 @@ app.get(/^\/(?!api).*/, (req, res) => {
   res.sendFile(path.join(viteDistPath, 'index.html'));
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Zendesk proxy rodando em http://localhost:${PORT}`);
 });
