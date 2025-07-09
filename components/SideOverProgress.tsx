@@ -1,6 +1,5 @@
 import React from 'react';
 import { FormData } from '../types';
-import AIAssistant from './AIAssistant';
 
 export interface ProgressSection {
   id: string;
@@ -13,7 +12,7 @@ interface SideOverProgressProps {
   onSectionClick: (id: string) => void;
   currentSectionId?: string; // Optional: to highlight the currently active/viewed section
   headerHeight?: number; // Optional: to adjust top position if header height is dynamic
-  formData: FormData; // Add formData to pass to the AI assistant
+  formData: FormData; // Mantido para compatibilidade, mas não será mais usado
 }
 
 const CheckCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -28,8 +27,7 @@ const CircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-
-const SideOverProgress: React.FC<SideOverProgressProps> = ({ sections, onSectionClick, headerHeight = 80, formData }) => {
+const SideOverProgress: React.FC<SideOverProgressProps> = ({ sections, onSectionClick, headerHeight = 80 }) => {
   return (
     <aside
       className="w-50 h-full pr-4 bg-white shadow-2xl rounded-l-2xl border-l border-slate-200 flex flex-col items-stretch transition-all duration-300 ease-in-out"
@@ -57,7 +55,6 @@ const SideOverProgress: React.FC<SideOverProgressProps> = ({ sections, onSection
             ))}
           </ul>
         </nav>
-        <AIAssistant formData={formData} />
       </div>
     </aside>
   );

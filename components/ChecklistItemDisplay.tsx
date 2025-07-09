@@ -26,14 +26,17 @@ const ChecklistItemDisplay: React.FC<ChecklistItemDisplayProps> = ({ id, questio
           isInvalid={isInvalid && data.rating === null} // Pass invalid state only if rating is null
         />
       </FormField>
-      <FormField label="Justificativa:" htmlFor={`${id}-justification`} className="mt-3">
-        <TextAreaInput
-          id={`${id}-justification`}
-          value={data.justification}
-          onChange={(e) => onChange('justification', e.target.value)}
-          placeholder="Detalhes da avaliação..."
-        />
-      </FormField>
+      {/* Mostrar justificativa apenas se for Não conforme */}
+      {data.rating === RatingOption.NAO_CONFORME && (
+        <FormField label="Justificativa:" htmlFor={`${id}-justification`} className="mt-3">
+          <TextAreaInput
+            id={`${id}-justification`}
+            value={data.justification}
+            onChange={(e) => onChange('justification', e.target.value)}
+            placeholder="Detalhes da avaliação..."
+          />
+        </FormField>
+      )}
     </div>
   );
 };

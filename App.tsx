@@ -39,7 +39,8 @@ import ChecklistItemDisplay from './components/ChecklistItemDisplay';
 import NCGItemDisplay from './components/NCGItemDisplay';
 import CustomerExperienceQuestion from './components/CustomerExperienceQuestion';
 import SubmitSection from './components/SubmitSection';
-import SideOverProgress, { ProgressSection } from './components/SideOverProgress';
+// Remover import do SideOverProgress
+// import SideOverProgress, { ProgressSection } from './components/SideOverProgress';
 import { createClient } from '@supabase/supabase-js';
 import Login from './components/Login';
 
@@ -70,6 +71,14 @@ const SECTION_IDS = {
   submit: 'submit-section',
 } as const;
 
+const TAB_LIST = [
+  { id: SECTION_IDS.generalInfo, label: 'Informações da Monitoria' },
+  { id: SECTION_IDS.checklist, label: 'Critérios de Avaliação' },
+  { id: SECTION_IDS.ncg, label: 'Critérios NCG' },
+  { id: SECTION_IDS.customerExperience, label: 'Experiência do Cliente' },
+  { id: SECTION_IDS.submit, label: 'Envio e Resultado' },
+];
+
 const App: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
     generalInfo: { ...INITIAL_GENERAL_INFO },
@@ -95,7 +104,10 @@ const App: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<string | null>(null);
 
+  // Remover estados e efeitos relacionados à IA
+
   const HEADER_HEIGHT = 80;
+  const [currentTab, setCurrentTab] = useState(0);
 
   // Persistência local do formulário
   useEffect(() => {
@@ -470,7 +482,7 @@ const App: React.FC = () => {
     }
   };
 
-  // --- Logic for SideOverProgress ---
+  // --- Validação de etapas para navegação ---
   const isGeneralInfoComplete = useMemo(() => {
     const { generalInfo } = formData;
     return !!generalInfo.ticketNumber && !!generalInfo.serviceDate && !!generalInfo.analista && !!generalInfo.monitor;
@@ -499,59 +511,95 @@ const App: React.FC = () => {
     return true;
   }, [formData.customerExperience]);
 
-  const progressSections: ProgressSection[] = useMemo(() => [
-    { id: SECTION_IDS.generalInfo, title: 'Informações da Monitoria', isComplete: isGeneralInfoComplete },
-    { id: SECTION_IDS.checklist, title: 'Critérios de Avaliação', isComplete: isChecklistComplete },
-    { id: SECTION_IDS.ncg, title: 'Critérios NCG', isComplete: isNcgComplete },
-    { id: SECTION_IDS.customerExperience, title: 'Experiência do Cliente', isComplete: isCustomerExperienceComplete },
-    { id: SECTION_IDS.submit, title: 'Envio e Resultado', isComplete: finalScore !== null && !submitError },
-  ], [isGeneralInfoComplete, isChecklistComplete, isNcgComplete, isCustomerExperienceComplete, finalScore, submitError]);
+  const tabCompletion = [
+    isGeneralInfoComplete,
+    isChecklistComplete,
+    isNcgComplete,
+    isCustomerExperienceComplete,
+    finalScore !== null && !submitError
+  ];
 
-  // Função de login
-  const handleLogin = async (username: string, password: string) => {
-    setIsLoggingIn(true);
-    setLoginError(null);
-    try {
-      const { data, error } = await supabase
-        .from('avaliadores')
-        .select('*')
-        .eq('email', username)
-        .eq('senha', password)
-        .single();
-      if (error || !data) {
-        setLoginError('Usuário ou senha inválidos.');
-        setIsLoggingIn(false);
-        return;
-      }
-      setIsAuthenticated(true);
-      setCurrentUser(data.email);
-    } catch (e) {
-      setLoginError('Erro ao tentar logar.');
-    }
-    setIsLoggingIn(false);
+  // Renderiza tabela do mapeamento (payload)
+  const renderPayloadTable = () => {
+    // Monta o payload estruturado igual ao que seria enviado
+    const perguntas: Array<{ num: string, pergunta: string, resposta: string, justificativa: string }> = [];
+    CHECKLIST_ITEM_KEYS.forEach((key, idx) => {
+      perguntas.push({
+        num: (idx + 1).toString(),
+        pergunta: CHECKLIST_QUESTIONS[key],
+        resposta: formData.checklistItems[key].rating || '',
+        justificativa: formData.checklistItems[key].justification || ''
+      });
+    });
+    NCG_ITEM_KEYS.forEach((key, idx) => {
+      perguntas.push({
+        num: (13 + idx).toString(),
+        pergunta: NCG_QUESTIONS[key],
+        resposta: formData.ncgItems[key].occurred || '',
+        justificativa: formData.ncgItems[key].justification || ''
+      });
+    });
+    if (perguntas.length === 0) return null;
+    return (
+      <div className="overflow-x-auto mt-6">
+        <table className="min-w-full border border-slate-300 rounded-lg bg-white">
+          <thead>
+            <tr className="bg-sky-100 text-sky-800">
+              <th className="px-3 py-2 border-b">Nº</th>
+              <th className="px-3 py-2 border-b">Pergunta</th>
+              <th className="px-3 py-2 border-b">Resposta</th>
+              <th className="px-3 py-2 border-b">Justificativa</th>
+            </tr>
+          </thead>
+          <tbody>
+            {perguntas.map(item => (
+              <tr key={item.num} className="even:bg-slate-50">
+                <td className="px-3 py-2 border-b text-center font-bold">{item.num}</td>
+                <td className="px-3 py-2 border-b">{item.pergunta}</td>
+                <td className="px-3 py-2 border-b">{item.resposta}</td>
+                <td className="px-3 py-2 border-b">{item.justificativa}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
-  // Função de logout
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    setLoginError(null);
-    setIsLoggingIn(false);
-    // (Opcional) Limpar dados do formulário, se quiser
-    // setFormData({ ... });
-  };
+  // --- Renderização das abas ---
+  const renderTabs = () => (
+    <div className="flex space-x-2 mb-8 mt-4">
+      {TAB_LIST.map((tab, idx) => {
+        const isActive = idx === currentTab;
+        const isComplete = tabCompletion[idx];
+        return (
+          <button
+            key={tab.id}
+            className={`px-5 py-2 rounded-t-lg font-semibold border-b-2 transition-colors duration-150
+              ${isActive ? 'bg-sky-100 border-sky-600 text-sky-700' : isComplete ? 'bg-sky-50 border-sky-400 text-sky-600' : 'bg-slate-100 border-slate-200 text-slate-400'}
+              ${isComplete && !isActive ? 'font-bold' : ''}
+            `}
+            onClick={() => {
+              // Só permite avançar se a etapa anterior estiver completa
+              if (idx <= currentTab || tabCompletion.slice(0, idx).every(Boolean)) {
+                setCurrentTab(idx);
+              }
+            }}
+            disabled={idx > 0 && !tabCompletion.slice(0, idx).every(Boolean)}
+            aria-current={isActive ? 'page' : undefined}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
 
-  // Se não autenticado, mostra tela de login
-  if (!isAuthenticated) {
-    return <Login onLogin={handleLogin} error={loginError} isLoading={isLoggingIn} />;
-  }
-
+  // --- Renderização condicional das seções ---
+  const renderSection = () => {
+    switch (currentTab) {
+      case 0:
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Header title="Checklist Qualidade Suporte B2B" subtitle="v.1 - Monitoria Analista" onLogout={handleLogout} />
-      
-      <div className="flex flex-row h-[calc(100vh-104px)]"> {/* 104px = header (p-6) + border */}
-        <main className="flex-1 p-4 md:p-8 space-y-8 max-w-5xl mx-auto h-full overflow-y-auto">
           <SectionCard title="Monitoria Analista" id={SECTION_IDS.generalInfo}>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <FormField label="Número do Ticket" htmlFor="ticketNumber" required>
@@ -618,7 +666,9 @@ const App: React.FC = () => {
               </div>
             )}
           </SectionCard>
-
+        );
+      case 1:
+        return (
           <SectionCard title="Critérios de Avaliação (1-12)" id={SECTION_IDS.checklist}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {CHECKLIST_ITEM_KEYS.map(key => (
@@ -633,7 +683,9 @@ const App: React.FC = () => {
                   ))}
               </div>
           </SectionCard>
-
+        );
+      case 2:
+        return (
           <SectionCard title="Critérios NCG - Não Conformidade Grave (13-18)" id={SECTION_IDS.ncg}>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {NCG_ITEM_KEYS.map(key => (
@@ -648,7 +700,9 @@ const App: React.FC = () => {
                   ))}
               </div>
           </SectionCard>
-
+        );
+      case 3:
+        return (
           <SectionCard title="Avaliação Experiência do Cliente" id={SECTION_IDS.customerExperience}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                   <CustomerExperienceQuestion 
@@ -733,26 +787,100 @@ const App: React.FC = () => {
                   />
               </div>
           </SectionCard>
-          
-          <SubmitSection
+        );
+      case 4:
+        return (
+          <>
+            {renderPayloadTable()}
+            <SubmitSection
               id={SECTION_IDS.submit}
               finalScore={finalScore}
               onSubmit={handleSubmit}
               isSubmitting={isSubmitting}
               error={submitError}
               successMessage={successMessage}
-          />
-        </main>
-        
-        <aside className="hidden lg:block h-full">
-        <SideOverProgress 
-            sections={progressSections} 
-            onSectionClick={scrollToElement} 
-              headerHeight={0} // Not needed anymore
-              formData={formData}
-        />
-        </aside>
+            />
+          </>
+        );
+      default:
+        return null;
+    }
+  };
 
+  // --- Botões de navegação ---
+  const renderNavButtons = () => (
+    <div className="flex justify-between mt-8">
+      <button
+        type="button"
+        className="px-6 py-2 rounded-lg bg-sky-100 text-sky-700 font-semibold hover:bg-sky-200 transition"
+        onClick={() => setCurrentTab((prev) => Math.max(0, prev - 1))}
+        disabled={currentTab === 0}
+      >
+        Voltar
+      </button>
+      {currentTab < TAB_LIST.length - 1 && (
+        <button
+          type="button"
+          className="px-6 py-2 rounded-lg bg-sky-600 text-white font-semibold hover:bg-sky-700 transition"
+          onClick={() => setCurrentTab((prev) => Math.min(TAB_LIST.length - 1, prev + 1))}
+          disabled={!tabCompletion[currentTab]}
+        >
+          Próximo
+        </button>
+      )}
+    </div>
+  );
+
+  // Função de login
+  const handleLogin = async (username: string, password: string) => {
+    setIsLoggingIn(true);
+    setLoginError(null);
+    try {
+      const { data, error } = await supabase
+        .from('avaliadores')
+        .select('*')
+        .eq('email', username)
+        .eq('senha', password)
+        .single();
+      if (error || !data) {
+        setLoginError('Usuário ou senha inválidos.');
+        setIsLoggingIn(false);
+        return;
+      }
+      setIsAuthenticated(true);
+      setCurrentUser(data.email);
+    } catch (e) {
+      setLoginError('Erro ao tentar logar.');
+    }
+    setIsLoggingIn(false);
+  };
+
+  // Função de logout
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setLoginError(null);
+    setIsLoggingIn(false);
+    // (Opcional) Limpar dados do formulário, se quiser
+    // setFormData({ ... });
+  };
+
+  // Se não autenticado, mostra tela de login
+  if (!isAuthenticated) {
+    return <Login onLogin={handleLogin} error={loginError} isLoading={isLoggingIn} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <Header title="Checklist Qualidade Suporte B2B" subtitle="v.1 - Monitoria Analista" onLogout={handleLogout} />
+      <div className="flex flex-col items-center w-full px-2 md:px-8 pt-44">
+        <div className="w-full max-w-7xl flex flex-col items-center">
+          <div className="w-full max-w-5xl">
+            {renderTabs()}
+            {renderSection()}
+            {renderNavButtons()}
+          </div>
+        </div>
       </div>
       <footer className="text-center p-4 text-sm text-slate-500 mt-auto">
         &copy; {new Date().getFullYear()} Quality Checklist App. All rights reserved.

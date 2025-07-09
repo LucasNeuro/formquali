@@ -8,7 +8,7 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ title, subtitle, onLogout }) => {
   return (
-    <header className="bg-white text-slate-800 p-6 shadow-sm border-b border-slate-200 flex items-center justify-between">
+    <header className="fixed top-0 left-0 w-full bg-white text-slate-800 p-6 shadow-sm border-b border-slate-200 flex items-center justify-between z-[1000]">
       <div className="container mx-auto flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">{title}</h1>
