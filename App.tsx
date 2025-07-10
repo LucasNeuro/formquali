@@ -24,6 +24,8 @@ import {
   FCR_RESPONSIBLE_OPTIONS,
   YES_NO_SELECT_OPTIONS,
   YES_NO_NA_SELECT_OPTIONS,
+  SIM_NAO_OPTIONS,
+  SIM_NAO_NA_OPTIONS,
   // Zendesk and Label constants
   GENERAL_INFO_LABELS,
   CUSTOMER_EXPERIENCE_LABELS,
@@ -704,88 +706,98 @@ const App: React.FC = () => {
       case 3:
         return (
           <SectionCard title="Avaliação Experiência do Cliente" id={SECTION_IDS.customerExperience}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white rounded-xl shadow p-6 border border-slate-200 flex flex-col gap-4">
+                <CustomerExperienceQuestion 
+                  id="fcr" label="FCR - Houve resolução no primeiro contato?" type="select" 
+                  value={formData.customerExperience.fcr} 
+                  onChange={val => handleCustomerExperienceChange('fcr', val as string | null)}
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('fcr')}
+                />
+                {/* Só mostra o responsável se FCR = Não */}
+                {formData.customerExperience.fcr === "Não" && (
                   <CustomerExperienceQuestion 
-                      id="fcr" label="FCR - Houve resolução no primeiro contato?" type="select" 
-                      value={formData.customerExperience.fcr} 
-                      onChange={val => handleCustomerExperienceChange('fcr', val as string | null)}
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('fcr')}
+                    id="fcrResponsible" label="FCR - Se não houve resolução, quem foi o responsável?" type="select" 
+                    value={formData.customerExperience.fcrResponsible} 
+                    onChange={val => handleCustomerExperienceChange('fcrResponsible', val as string | null)} 
+                    required
+                    selectOptions={FCR_RESPONSIBLE_OPTIONS}
+                    isInvalid={invalidFields.has('fcrResponsible')}
                   />
+                )}
+                <CustomerExperienceQuestion 
+                  id="dissatisfactionDuringContact" label="O cliente demonstrou insatisfação durante o contato?" type="select" 
+                  value={formData.customerExperience.dissatisfactionDuringContact} 
+                  onChange={val => handleCustomerExperienceChange('dissatisfactionDuringContact', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('dissatisfactionDuringContact')}
+                />
+                {/* Só mostra tentativa de reverter imagem negativa se houve insatisfação */}
+                {formData.customerExperience.dissatisfactionDuringContact === "Sim" && (
                   <CustomerExperienceQuestion 
-                      id="fcrResponsible" label="FCR - Se não houve resolução, quem foi o responsável?" type="select" 
-                      value={formData.customerExperience.fcrResponsible} 
-                      onChange={val => handleCustomerExperienceChange('fcrResponsible', val as string | null)} 
-                      required={formData.customerExperience.fcr === "Não"}
-                      selectOptions={FCR_RESPONSIBLE_OPTIONS}
-                      isInvalid={invalidFields.has('fcrResponsible')}
+                    id="attemptToReverseNegativeImage" label="Houve tentativa de reverter a imagem negativa?" type="select" 
+                    value={formData.customerExperience.attemptToReverseNegativeImage} 
+                    onChange={val => handleCustomerExperienceChange('attemptToReverseNegativeImage', val as string | null)}
+                    required
+                    selectOptions={SIM_NAO_NA_OPTIONS}
+                    isInvalid={invalidFields.has('attemptToReverseNegativeImage')}
                   />
-                  <CustomerExperienceQuestion 
-                      id="dissatisfactionDuringContact" label="O cliente demonstrou insatisfação durante o contato?" type="select" 
-                      value={formData.customerExperience.dissatisfactionDuringContact} 
-                      onChange={val => handleCustomerExperienceChange('dissatisfactionDuringContact', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('dissatisfactionDuringContact')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="attemptToReverseNegativeImage" label="Houve tentativa de reverter a imagem negativa?" type="select" 
-                      value={formData.customerExperience.attemptToReverseNegativeImage} 
-                      onChange={val => handleCustomerExperienceChange('attemptToReverseNegativeImage', val as string | null)}
-                      required={formData.customerExperience.dissatisfactionDuringContact === "Sim"}
-                      selectOptions={YES_NO_NA_SELECT_OPTIONS}
-                      isInvalid={invalidFields.has('attemptToReverseNegativeImage')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="customerPraisedService" label="O cliente elogiou o atendimento?" type="select" 
-                      value={formData.customerExperience.customerPraisedService} 
-                      onChange={val => handleCustomerExperienceChange('customerPraisedService', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('customerPraisedService')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="complaintPreviousService" label="Cliente cita reclamação de atendimento anterior?" type="select" 
-                      value={formData.customerExperience.complaintPreviousService} 
-                      onChange={val => handleCustomerExperienceChange('complaintPreviousService', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('complaintPreviousService')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="complaintAnalystPosture" label="Cliente reclamou da postura do analista?" type="select" 
-                      value={formData.customerExperience.complaintAnalystPosture} 
-                      onChange={val => handleCustomerExperienceChange('complaintAnalystPosture', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('complaintAnalystPosture')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="complaintIncorrectInfo" label="Cliente reclamou de ter recebido informações Incorretas/ incompletas?" type="select" 
-                      value={formData.customerExperience.complaintIncorrectInfo} 
-                      onChange={val => handleCustomerExperienceChange('complaintIncorrectInfo', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('complaintIncorrectInfo')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="dissatisfactionWithIA" label="Cliente verbalizou insatisfação com a IA?" type="select" 
-                      value={formData.customerExperience.dissatisfactionWithIA} 
-                      onChange={val => handleCustomerExperienceChange('dissatisfactionWithIA', val as string | null)} 
-                      selectOptions={YES_NO_NA_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('dissatisfactionWithIA')}
-                  />
-                  <CustomerExperienceQuestion 
-                      id="threatenLegalAction" label="Cliente ameaça acionar Orgãos de Justiça (Procon, Reclame Aqui etc.)?" type="select" 
-                      value={formData.customerExperience.threatenLegalAction} 
-                      onChange={val => handleCustomerExperienceChange('threatenLegalAction', val as string | null)} 
-                      selectOptions={YES_NO_SELECT_OPTIONS}
-                      required
-                      isInvalid={invalidFields.has('threatenLegalAction')}
-                  />
+                )}
+                <CustomerExperienceQuestion 
+                  id="customerPraisedService" label="O cliente elogiou o atendimento?" type="select" 
+                  value={formData.customerExperience.customerPraisedService} 
+                  onChange={val => handleCustomerExperienceChange('customerPraisedService', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('customerPraisedService')}
+                />
               </div>
+              <div className="bg-white rounded-xl shadow p-6 border border-slate-200 flex flex-col gap-4">
+                <CustomerExperienceQuestion 
+                  id="complaintPreviousService" label="Cliente cita reclamação de atendimento anterior?" type="select" 
+                  value={formData.customerExperience.complaintPreviousService} 
+                  onChange={val => handleCustomerExperienceChange('complaintPreviousService', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('complaintPreviousService')}
+                />
+                <CustomerExperienceQuestion 
+                  id="complaintAnalystPosture" label="Cliente reclamou da postura do analista?" type="select" 
+                  value={formData.customerExperience.complaintAnalystPosture} 
+                  onChange={val => handleCustomerExperienceChange('complaintAnalystPosture', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('complaintAnalystPosture')}
+                />
+                <CustomerExperienceQuestion 
+                  id="complaintIncorrectInfo" label="Cliente reclamou de ter recebido informações Incorretas/ incompletas?" type="select" 
+                  value={formData.customerExperience.complaintIncorrectInfo} 
+                  onChange={val => handleCustomerExperienceChange('complaintIncorrectInfo', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('complaintIncorrectInfo')}
+                />
+                <CustomerExperienceQuestion 
+                  id="dissatisfactionWithIA" label="Cliente verbalizou insatisfação com a IA?" type="select" 
+                  value={formData.customerExperience.dissatisfactionWithIA} 
+                  onChange={val => handleCustomerExperienceChange('dissatisfactionWithIA', val as string | null)} 
+                  selectOptions={SIM_NAO_NA_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('dissatisfactionWithIA')}
+                />
+                <CustomerExperienceQuestion 
+                  id="threatenLegalAction" label="Cliente ameaça acionar Orgãos de Justiça (Procon, Reclame Aqui etc.)?" type="select" 
+                  value={formData.customerExperience.threatenLegalAction} 
+                  onChange={val => handleCustomerExperienceChange('threatenLegalAction', val as string | null)} 
+                  selectOptions={SIM_NAO_OPTIONS}
+                  required
+                  isInvalid={invalidFields.has('threatenLegalAction')}
+                />
+              </div>
+            </div>
           </SectionCard>
         );
       case 4:

@@ -80,13 +80,13 @@ export const INITIAL_CHECKLIST_ITEM_DATA = { rating: null, justification: "" };
 export const INITIAL_NCG_ITEM_DATA = { occurred: null, justification: "" };
 
 export const FCR_RESPONSIBLE_OPTIONS: Array<{ value: string; label: string }> = [
-  { value: "", label: "Selecionar opção..." },
-  { value: "cliente", label: "Cliente" },
-  { value: "analista", label: "Analista" },
-  { value: "processo", label: "Processo" },
-  { value: "financeiro", label: "Financeiro" },
-  { value: "tech", label: "Tech" },
-  { value: "foi_resolvido_primeiro_contato", label: "Foi resolvido no primeiro contato" },
+  { value: '', label: 'Selecionar opção...' },
+  { value: 'cliente', label: 'Cliente' },
+  { value: 'analista', label: 'Analista' },
+  { value: 'processo', label: 'Processo' },
+  { value: 'outras_areas', label: 'Outras áreas' },
+  { value: 'zig', label: 'Zig' },
+  { value: 'houve_fcr', label: 'Houve o FCR' },
 ];
 
 export const YES_NO_SELECT_OPTIONS: Array<{ value: string; label: string }> = [
@@ -99,6 +99,19 @@ export const YES_NO_NA_SELECT_OPTIONS: Array<{ value: string; label: string }> =
   { value: "", label: "Selecionar opção..." },
   { value: RatingOption.CONFORME, label: "Conforme" },
   { value: RatingOption.NAO_CONFORME, label: "Não conforme" },
+];
+
+export const SIM_NAO_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Selecionar opção...' },
+  { value: 'Sim', label: 'Sim' },
+  { value: 'Não', label: 'Não' },
+];
+
+export const SIM_NAO_NA_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Selecionar opção...' },
+  { value: 'Sim', label: 'Sim' },
+  { value: 'Não', label: 'Não' },
+  { value: 'N/A', label: 'N/A' },
 ];
 
 export const INITIAL_CUSTOMER_EXPERIENCE_DATA: CustomerExperienceData = {
