@@ -114,6 +114,13 @@ export const SIM_NAO_NA_OPTIONS: Array<{ value: string; label: string }> = [
   { value: 'N/A', label: 'N/A' },
 ];
 
+export const SIM_NAO_NAOSEAPLICA_OPTIONS: Array<{ value: string; label: string }> = [
+  { value: '', label: 'Selecionar opção...' },
+  { value: 'Sim', label: 'Sim' },
+  { value: 'Não', label: 'Não' },
+  { value: 'Não se aplica', label: 'Não se aplica' },
+];
+
 export const INITIAL_CUSTOMER_EXPERIENCE_DATA: CustomerExperienceData = {
   fcr: null,
   fcrResponsible: "", 

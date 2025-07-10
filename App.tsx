@@ -26,6 +26,7 @@ import {
   YES_NO_NA_SELECT_OPTIONS,
   SIM_NAO_OPTIONS,
   SIM_NAO_NA_OPTIONS,
+  SIM_NAO_NAOSEAPLICA_OPTIONS,
   // Zendesk and Label constants
   GENERAL_INFO_LABELS,
   CUSTOMER_EXPERIENCE_LABELS,
@@ -742,7 +743,7 @@ const App: React.FC = () => {
                     value={formData.customerExperience.attemptToReverseNegativeImage} 
                     onChange={val => handleCustomerExperienceChange('attemptToReverseNegativeImage', val as string | null)}
                     required
-                    selectOptions={SIM_NAO_NA_OPTIONS}
+                    selectOptions={SIM_NAO_NAOSEAPLICA_OPTIONS}
                     isInvalid={invalidFields.has('attemptToReverseNegativeImage')}
                   />
                 )}
